@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cosmic Zoom — Logarithmic Universe Slider</title>
+<style>
+:root{
+  --bg:#030817;
+  --panel:rgba(18,27,49,.78);
+  --line:rgba(180,205,255,.22);
+  --text:#f4f7ff;
+  --muted:#aebbd5;
+  --accent:#9d8cff;
+  --accent2:#6ee7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--text)}
+body{min-width:1000px}
+.app{position:relative;width:100vw;height:100vh;overflow:hidden;background:
+  radial-gradient(circle at 52% 43%,rgba(105,78,170,.22),transparent 28%),
+  radial-gradient(circle at 78% 28%,rgba(64,190,255,.10),transparent 25%),
+  linear-gradient(180deg,#030716 0%,#020611 100%)}
+.stars,.stars:before,.stars:after{position:absolute;inset:0;content:"";pointer-events:none}
+.stars{background-image:
+ radial-gradient(circle at 8% 20%,#fff 0 1px,transparent 1.6px),
+ radial-gradient(circle at 17% 71%,#fff 0 1px,transparent 1.5px),
+ radial-gradient(circle at 29% 32%,#fff 0 1px,transparent 1.5px),
+ radial-gradient(circle at 43% 18%,#dbeafe 0 1px,transparent 1.6px),
+ radial-gradient(circle at 56% 27%,#fff 0 1px,transparent 1.5px),
+ radial-gradient(circle at 67% 12%,#fff 0 1px,transparent 1.5px),
+ radial-gradient(circle at 84% 19%,#fff 0 1px,transparent 1.6px),
+ radial-gradient(circle at 92% 42%,#fff 0 1px,transparent 1.5px),
+ radial-gradient(circle at 72% 70%,#fff 0 1px,transparent 1.5px),
+ radial-gradient(circle at 35% 78%,#fff 0 1px,transparent 1.5px);
+ background-size:260px 190px,330px 260px,410px 300px,360px 270px,300px 220px,500px 360px,430px 330px,360px 260px,470px 340px,390px 290px;
+ opacity:.65}
+.stars:before{background:
+ radial-gradient(circle at 12% 45%,rgba(255,255,255,.75) 0 1px,transparent 2px),
+ radial-gradient(circle at 49% 58%,rgba(255,255,255,.8) 0 1px,transparent 2px),
+ radial-gradient(circle at 61% 79%,rgba(255,255,255,.7) 0 1px,transparent 2px),
+ radial-gradient(circle at 88% 76%,rgba(255,255,255,.8) 0 1px,transparent 2px);
+ filter:blur(.2px)}
+header{position:absolute;z-index:10;top:0;left:0;right:0;height:112px;padding:28px 42px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(185,205,255,.13);background:linear-gradient(180deg,rgba(2,6,17,.82),rgba(2,6,17,.35),transparent)}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:48px;height:48px;border:2px solid #8e9dff;border-radius:50%;position:relative;transform:rotate(-22deg);box-shadow:0 0 22px rgba(141,125,255,.35)}
+.logo:before{content:"";position:absolute;width:34px;height:15px;border:2px solid #6ee7ff;border-radius:50%;left:5px;top:13px}
+.logo:after{content:"";position:absolute;width:8px;height:8px;background:#6ee7ff;border-radius:50%;right:3px;top:4px}
+.brand h1{font-size:28px;letter-spacing:.02em;margin:0;font-weight:500}
+.brand p{margin:2px 0 0;color:#8996b2;font-size:16px}
+.header-actions{display:flex;align-items:center;gap:18px;font-size:18px;color:#e7ecf8}
+.lang{padding:10px 4px}.divider{opacity:.45;margin:0 8px}
+.icon-btn,.pill-btn{border:1px solid var(--line);background:rgba(129,146,188,.15);color:var(--text);border-radius:999px;cursor:pointer}
+.icon-btn{width:54px;height:54px;font-size:22px}
+.main{position:absolute;inset:112px 0 255px;display:flex;align-items:center;justify-content:center}
+.universe{position:relative;width:min(1100px,78vw);height:min(650px,70vh);display:flex;align-items:center;justify-content:center}
+.earth-edge{position:absolute;left:-120px;top:50%;transform:translateY(-50%);width:300px;height:560px;border-radius:50%;background:
+ radial-gradient(circle at 62% 35%,rgba(100,180,255,.9),transparent 8%),
+ radial-gradient(circle at 45% 55%,#164d76 0 22%,#0a2844 43%,#020712 70%);
+ box-shadow:inset -25px 0 50px rgba(0,0,0,.85),0 0 40px rgba(82,166,255,.15);opacity:.72}
+.galaxy{position:absolute;width:650px;height:330px;border-radius:50%;transform:rotate(-17deg);background:
+ radial-gradient(ellipse at center,rgba(255,238,203,1) 0 5%,rgba(255,205,154,.9) 7%,rgba(202,151,255,.55) 17%,rgba(93,156,255,.25) 33%,transparent 64%),
+ repeating-radial-gradient(ellipse at center,rgba(180,211,255,.12) 0 2px,transparent 3px 10px);
+ filter:drop-shadow(0 0 28px rgba(150,150,255,.28));transition:.55s ease}
+.galaxy:before,.galaxy:after{content:"";position:absolute;inset:22% -3%;border-radius:50%;background:repeating-radial-gradient(ellipse at center,rgba(255,255,255,.15) 0 1px,transparent 2px 13px);opacity:.8}
+.galaxy:after{inset:35% 8%;filter:blur(7px);opacity:.6}
+.ring{position:absolute;width:830px;height:560px;border:1px solid rgba(139,165,226,.13);border-radius:50%;transform:rotate(11deg)}
+.ring2{width:980px;height:650px;transform:rotate(-9deg);opacity:.55}
+.panel{position:absolute;right:-300px;top:31%;width:430px;padding:30px 34px;border:1px solid rgba(190,210,255,.35);border-radius:24px;background:linear-gradient(135deg,rgba(57,67,94,.72),rgba(18,25,45,.72));backdrop-filter:blur(18px);box-shadow:0 20px 70px rgba(0,0,0,.35)}
+.panel small{display:block;color:#b9c6df;font-size:17px;letter-spacing:.02em}
+.panel h2{margin:8px 0 5px;font-size:48px;font-weight:400;letter-spacing:.02em;color:#c9fbff}
+.panel p{margin:0;color:#aebbd5;font-size:20px}
+.metric{margin-top:22px;font-size:14px;color:#8796b6}
+.bottom{position:absolute;z-index:20;left:0;right:0;bottom:0;height:255px;padding:22px 52px 30px;border-top:1px solid rgba(184,207,255,.17);background:linear-gradient(180deg,rgba(4,10,25,.58),rgba(4,8,19,.95) 30%,rgba(3,7,17,.98))}
+.milestones{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;font-size:17px;color:#aeb9d0;white-space:nowrap}
+.milestones span{cursor:pointer;transition:.2s}
+.milestones span.active{color:#fff;font-weight:600}
+.milestones span:hover{color:#d8faff}
+.slider-wrap{position:relative;margin-top:17px}
+input[type=range]{width:100%;appearance:none;height:5px;border-radius:10px;background:linear-gradient(90deg,#8f82ff,#6ee7ff 52%,#5d6782);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:25px;height:25px;border-radius:50%;background:#f8fbff;border:4px solid #9eeeff;box-shadow:0 0 0 8px rgba(110,231,255,.13),0 0 25px rgba(110,231,255,.6);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:25px;height:25px;border-radius:50%;background:#f8fbff;border:4px solid #9eeeff;box-shadow:0 0 0 8px rgba(110,231,255,.13),0 0 25px rgba(110,231,255,.6);cursor:pointer}
+.ticks{display:flex;justify-content:space-between;margin-top:10px;padding:0 4px;color:#63708e;font-size:11px}
+.controls{display:flex;justify-content:space-between;align-items:center;margin-top:25px}
+.control-btn{padding:15px 25px;border:1px solid rgba(190,208,255,.3);border-radius:999px;background:rgba(100,115,150,.2);color:#f5f7ff;font-size:18px;cursor:pointer;transition:.2s}
+.control-btn:hover{background:rgba(140,160,210,.28);transform:translateY(-1px)}
+.control-btn.primary{border-color:rgba(110,231,255,.45)}
+.scale-readout{position:absolute;left:50%;transform:translateX(-50%);bottom:29px;text-align:center;color:#8795b3;font-size:13px}
+.scale-readout strong{color:#d8faff;font-size:15px}
+.toast{position:absolute;z-index:50;left:50%;top:128px;transform:translate(-50%,-15px);padding:12px 18px;border:1px solid rgba(170,200,255,.28);border-radius:12px;background:rgba(12,20,39,.82);backdrop-filter:blur(12px);opacity:0;pointer-events:none;transition:.25s;color:#eaf7ff}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* Cosmic scale visual states */
+.visual{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .45s ease,transform .45s ease;transform:scale(.94)}
+.visual.active{opacity:1;visibility:visible;transform:scale(1)}
+.visual-human{z-index:2}
+.human-icon{font-size:180px;color:#d9e7ff;text-shadow:0 0 25px rgba(130,200,255,.65);position:relative;line-height:1}
+.human-icon:before,.human-icon:after{content:"";position:absolute;border:3px solid rgba(110,231,255,.35);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);width:250px;height:250px}
+.human-icon:after{width:360px;height:360px;border-color:rgba(157,140,255,.18)}
+.human-glow{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(110,231,255,.18),transparent 68%);filter:blur(12px)}
+
+.visual-earth{z-index:2}
+.earth{width:330px;height:330px;border-radius:50%;background:
+radial-gradient(circle at 33% 30%,#6fb8e8 0 9%,transparent 10%),
+radial-gradient(circle at 65% 48%,#2f7f54 0 12%,transparent 13%),
+radial-gradient(circle at 43% 67%,#5d9c57 0 9%,transparent 10%),
+radial-gradient(circle at 52% 46%,#1e5f88 0 45%,#0a2948 72%,#020713 100%);
+box-shadow:inset -45px -25px 70px rgba(0,0,0,.65),0 0 60px rgba(73,172,255,.32)}
+.earth-halo{position:absolute;width:390px;height:390px;border:1px solid rgba(110,231,255,.35);border-radius:50%;box-shadow:0 0 35px rgba(110,231,255,.12)}
+
+.visual-solar{z-index:2}
+.sun{width:145px;height:145px;border-radius:50%;background:radial-gradient(circle at 38% 34%,#fff5bd,#ffbd48 42%,#d65c20 75%,#6b2716);box-shadow:0 0 55px rgba(255,184,67,.72)}
+.orbit{position:absolute;border:1px solid rgba(174,197,240,.34);border-radius:50%;transform:rotate(-14deg)}
+.orbit i{display:block;position:absolute;width:19px;height:19px;border-radius:50%;background:#b7d9ff;box-shadow:0 0 12px rgba(170,220,255,.65)}
+.o1{width:220px;height:150px}.o1 i{right:8px;top:16px;width:10px;height:10px}
+.o2{width:310px;height:210px}.o2 i{left:27px;bottom:8px;width:14px;height:14px;background:#d7a56e}
+.o3{width:430px;height:290px}.o3 i{right:15px;bottom:38px;width:18px;height:18px;background:#8ed1ff}
+.o4{width:570px;height:385px}.o4 i{left:38px;top:60px;width:23px;height:23px;background:#e2b57b}
+.o5{width:740px;height:500px}.o5 i{right:55px;top:80px;width:31px;height:31px;background:#d7c29d}
+
+.visual-galaxy{z-index:2}
+.visual-galaxy .ring{position:absolute;width:830px;height:560px;border:1px solid rgba(139,165,226,.13);border-radius:50%;transform:rotate(11deg)}
+.visual-galaxy .ring2{width:980px;height:650px;transform:rotate(-9deg);opacity:.55}
+.visual-galaxy .galaxy{position:absolute;width:650px;height:330px;border-radius:50%;transform:rotate(-17deg);background:
+radial-gradient(ellipse at center,rgba(255,238,203,1) 0 5%,rgba(255,205,154,.9) 7%,rgba(202,151,255,.55) 17%,rgba(93,156,255,.25) 33%,transparent 64%),
+repeating-radial-gradient(ellipse at center,rgba(180,211,255,.12) 0 2px,transparent 3px 10px);
+filter:drop-shadow(0 0 28px rgba(150,150,255,.28))}
+.visual-galaxy .galaxy:before,.visual-galaxy .galaxy:after{content:"";position:absolute;inset:22% -3%;border-radius:50%;background:repeating-radial-gradient(ellipse at center,rgba(255,255,255,.15) 0 1px,transparent 2px 13px);opacity:.8}
+.visual-galaxy .galaxy:after{inset:35% 8%;filter:blur(7px);opacity:.6}
+
+.visual-cluster{z-index:2}
+.cluster-glow{position:absolute;width:650px;height:420px;border-radius:50%;background:radial-gradient(ellipse,rgba(118,137,255,.23),transparent 65%);filter:blur(8px)}
+.galaxy-dot{position:absolute;width:48px;height:26px;border-radius:50%;background:radial-gradient(ellipse,#fff4d7 0 8%,#a4b6ff 22%,rgba(120,125,255,.45) 42%,transparent 72%);filter:drop-shadow(0 0 10px rgba(145,170,255,.45))}
+.d1{transform:translate(-330px,-160px) rotate(18deg)} .d2{transform:translate(-180px,-210px) rotate(-10deg)}
+.d3{transform:translate(40px,-180px) rotate(24deg)} .d4{transform:translate(260px,-120px) rotate(-15deg)}
+.d5{transform:translate(-260px,-35px) rotate(-25deg)} .d6{transform:translate(-50px,-65px) rotate(15deg)}
+.d7{transform:translate(150px,-20px) rotate(-8deg)} .d8{transform:translate(340px,20px) rotate(20deg)}
+.d9{transform:translate(-300px,100px) rotate(8deg)} .d10{transform:translate(-80px,130px) rotate(-20deg)}
+.d11{transform:translate(110px,110px) rotate(12deg)} .d12{transform:translate(290px,150px) rotate(-15deg)}
+
+.visual-universe{z-index:2}
+.universe-map{width:820px;height:500px;border-radius:50%;background:
+radial-gradient(circle at 50% 50%,rgba(255,245,211,.85) 0 1%,transparent 2%),
+radial-gradient(circle at 18% 30%,#b6a5ff 0 2px,transparent 3px),
+radial-gradient(circle at 73% 25%,#9deaff 0 2px,transparent 3px),
+radial-gradient(circle at 42% 70%,#fff 0 2px,transparent 3px),
+radial-gradient(circle at 63% 62%,#c9a5ff 0 2px,transparent 3px),
+radial-gradient(ellipse at center,rgba(102,125,255,.26),transparent 65%);
+box-shadow:0 0 80px rgba(115,135,255,.15);filter:blur(.1px)}
+.you-are-here{position:absolute;bottom:45px;right:85px;padding:11px 17px;border:1px solid rgba(110,231,255,.45);border-radius:999px;background:rgba(10,22,42,.72);color:#d8fbff;font-size:14px;letter-spacing:.08em}
+.you-are-here span{display:inline-block;width:10px;height:10px;border-radius:50%;background:#6ee7ff;box-shadow:0 0 14px #6ee7ff;margin-right:8px}
+
+@media(max-width:1100px){
+  .panel{right:0;width:360px}.galaxy{width:560px}.brand h1{font-size:24px}.milestones{font-size:14px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="stars"></div>
+  <header>
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <h1>COSMIC ZOOM</h1>
+        <p>— Logarithmic Universe Slider</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="lang"><span>EN</span><span class="divider">|</span><span>বাংলা</span></div>
+      <button class="icon-btn" id="soundBtn" aria-label="Toggle sound">🔊</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="universe" aria-label="Cosmic visualization">
+      <div class="visual visual-human" id="visualHuman">
+        <div class="human-icon">●</div>
+        <div class="human-glow"></div>
+      </div>
+      <div class="visual visual-earth" id="visualEarth">
+        <div class="earth"></div>
+        <div class="earth-halo"></div>
+      </div>
+      <div class="visual visual-solar" id="visualSolar">
+        <div class="sun"></div>
+        <div class="orbit o1"><i></i></div>
+        <div class="orbit o2"><i></i></div>
+        <div class="orbit o3"><i></i></div>
+        <div class="orbit o4"><i></i></div>
+        <div class="orbit o5"><i></i></div>
+      </div>
+      <div class="visual visual-galaxy" id="visualGalaxy">
+        <div class="ring"></div>
+        <div class="ring ring2"></div>
+        <div class="galaxy" id="galaxy"></div>
+      </div>
+      <div class="visual visual-cluster" id="visualCluster">
+        <div class="cluster-glow"></div>
+        <div class="galaxy-dot d1"></div><div class="galaxy-dot d2"></div>
+        <div class="galaxy-dot d3"></div><div class="galaxy-dot d4"></div>
+        <div class="galaxy-dot d5"></div><div class="galaxy-dot d6"></div>
+        <div class="galaxy-dot d7"></div><div class="galaxy-dot d8"></div>
+        <div class="galaxy-dot d9"></div><div class="galaxy-dot d10"></div>
+        <div class="galaxy-dot d11"></div><div class="galaxy-dot d12"></div>
+      </div>
+      <div class="visual visual-universe" id="visualUniverse">
+        <div class="universe-map"></div>
+      </div>
+
+      <div class="panel">
+        <small>CURRENT SCALE</small>
+        <h2 id="scaleTitle">MILKY WAY</h2>
+        <p id="scaleDesc">Our home galaxy</p>
+        <div class="metric" id="scaleMetric">Approximate scale • 100,000 light-years</div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast">Drag the slider to explore cosmic scales.</div>
+
+  <section class="bottom">
+    <div class="milestones" id="milestones">
+   
+      <span data-i="1">EARTH</span>
+      <span data-i="2">SOLAR SYSTEM</span>
+      <span data-i="3" class="active">MILKY WAY</span>
+      <span data-i="4">GALAXY CLUSTER</span>
+      <span data-i="5">OBSERVABLE UNIVERSE</span>
+    </div>
+
+    <div class="slider-wrap">
+      <input id="slider" type="range" min="0" max="5" step="0.01" value="3" aria-label="Logarithmic universe scale">
+      <div class="ticks">
+        <span>10⁰</span><span>10⁸</span><span>10¹¹</span><span>10⁵</span><span>10⁸</span><span>10²⁷+ km</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="control-btn" id="resetBtn"> &nbsp; RESET</button>
+      <div class="scale-readout">SCALE INDEX &nbsp;<strong id="index">03 / 05</strong></div>
+      <button class="control-btn primary" id="learnBtn">ⓘ &nbsp; LEARN MORE</button>
+    </div>
+  </section>
+</div>
+
+<script>
+const data = [
+ 
+  {
+    name:"EARTH",
+    desc:"Our home planet",
+    metric:"Diameter • 12,742 km",
+    visual:"earth"
+  },
+  {
+    name:"SOLAR SYSTEM",
+    desc:"Our planetary neighborhood",
+    metric:"Planetary system • billions of km",
+    visual:"solar"
+  },
+  {
+    name:"MILKY WAY",
+    desc:"Our home galaxy",
+    metric:"Approximate scale • 100,000 light-years",
+    visual:"galaxy"
+  },
+  {
+    name:"GALAXY CLUSTER",
+    desc:"Galaxies gathered across enormous distances",
+    metric:"Typical scale • millions of light-years",
+    visual:"cluster"
+  },
+  {
+    name:"OBSERVABLE UNIVERSE",
+    desc:"The largest scale in this experience",
+    metric:"Diameter • about 93 billion light-years",
+    visual:"universe"
+  }
+];
+
+const slider = document.getElementById("slider");
+const title = document.getElementById("scaleTitle");
+const desc = document.getElementById("scaleDesc");
+const metric = document.getElementById("scaleMetric");
+const index = document.getElementById("index");
+const milestones = [...document.querySelectorAll("#milestones span")];
+const galaxy = document.getElementById("galaxy");
+const toast = document.getElementById("toast");
+
+function update(v){
+  const i = Math.max(0, Math.min(5, Math.round(v)));
+  const d = data[i];
+
+  title.textContent = d.name;
+  desc.textContent = d.desc;
+  metric.textContent = d.metric;
+  index.textContent = String(i+1).padStart(2,"0") + " / 06";
+  milestones.forEach((m,n)=>m.classList.toggle("active",n===i));
+
+  document.querySelectorAll(".visual").forEach(el=>el.classList.remove("active"));
+  const current = document.getElementById(
+
+    d.visual === "earth" ? "visualEarth" :
+    d.visual === "solar" ? "visualSolar" :
+    d.visual === "galaxy" ? "visualGalaxy" :
+    d.visual === "cluster" ? "visualCluster" : "visualUniverse"
+  );
+  current.classList.add("active");
+
+  title.style.color = i === 5 ? "#ffffff" : "#c9fbff";
+  if(i===5){
+    desc.textContent = "YOU ARE HERE • Explore the observable universe";
+  }
+}
+
+slider.addEventListener("input", e => update(e.target.value));
+milestones.forEach(m => m.addEventListener("click",()=>{
+  slider.value=m.dataset.i;
+  update(slider.value);
+}));
+document.getElementById("resetBtn").addEventListener("click",()=>{
+  slider.value=3; update(3); showToast("Experience reset to Milky Way.");
+});
+document.getElementById("learnBtn").addEventListener("click",()=>{
+  showToast("Explore the scale, then select a milestone for more detail.");
+});
+document.getElementById("soundBtn").addEventListener("click",()=>{
+  showToast("Voice guidance toggled.");
+});
+function showToast(text){
+  toast.textContent=text; toast.classList.add("show");
+  clearTimeout(window.__toast); window.__toast=setTimeout(()=>toast.classList.remove("show"),2200);
+}
+update(3);
+</script>
+</body>
+</html>
